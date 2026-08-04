@@ -97,7 +97,7 @@ Implementa o protocolo de comandos.
 
 Camada de acesso ao armazenamento.
 
-Atualmente utiliza um `dict` do Python como banco de dados em memória, encapsulando operações de inserção, consulta e remoção.
+Atualmente utiliza um `dict` do Python (implementado em `server.py`) como banco de dados em memória, encapsulando operações de inserção, consulta e remoção.
 
 ---
 
