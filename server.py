@@ -1,5 +1,5 @@
-import commands as cmd
 import network as net
+import threading
 
 HOST = "127.0.0.1"
 PORT = 9090
@@ -16,20 +16,7 @@ while True:
     csock, client_addr = lsock.accept()
     print(f">> server connected to {client_addr}")
     
-    # se comunicando com o client
-    net.enviar_saida(csock, "\033[H\033[J".encode("utf-8"))  # ANSI escape code to clear the screen
-    net.enviar_saida(csock, ">> Welcome to the Redis server! (type \\help for available commands)\n".encode("utf-8"))
-    sair = False
-    while not sair:
-        comando = net.receber_comando(csock)
-
-        if not comando:  # lista vazia = cliente desconectou
-            break
-        
-        saida = cmd.execute(bd, comando)
-        net.enviar_saida(csock, str(saida).encode("utf-8"))
-        if saida == ">> See you later!\n":
-            sair = True
-    csock.close()
+    th = threading.Thread(target = net.atender_client, args=(csock, bd))
+    th.start()
 lsock.close()
 
