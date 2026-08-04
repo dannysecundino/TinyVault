@@ -130,8 +130,3 @@ Embora simples, o projeto reproduz parte da lógica encontrada em servidores rea
 - [ ] Testes automatizados
 - [ ] Implementação de novos comandos
 
----
-
-## Licença
-
-Este projeto está licenciado sob a licença **MIT**.
