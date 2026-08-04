@@ -6,6 +6,8 @@ O Tiny Vault é um servidor de armazenamento chave-valor em memória construído
 
 A comunicação entre cliente e servidor é implementada diretamente sobre sockets TCP, sem frameworks ou dependências externas, utilizando um protocolo de comandos simples inspirado no Redis.
 
+O software conta com o uso de **threads** para atender a **múltiplos clientes simultâneos**.
+
 > Redis é uma marca registrada da Redis Ltd. Este projeto não possui qualquer afiliação, patrocínio ou endosso da Redis Ltd.; a referência é utilizada apenas para fins educacionais.
 
 ---
@@ -124,7 +126,7 @@ Embora simples, o projeto reproduz parte da lógica encontrada em servidores rea
 - [x] Comandos `SET`, `GET`, `DEL`
 - [x] Listagem de chaves
 - [x] Sistema de ajuda
-- [ ] Suporte a múltiplos clientes simultaneamente
+- [X] Suporte a múltiplos clientes simultaneamente
 - [ ] Persistência em disco
 - [ ] Expiração automática de chaves (TTL)
 - [ ] Testes automatizados
