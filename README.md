@@ -23,7 +23,7 @@ Nenhuma dependência externa. Todo o comportamento de rede, protocolo e persist�
 
 Copie todo o repositório (a pasta `data`, por exemplo, é essencial por contar com o `.json` que guarda o banco de dados do servidor).
 
-Navegue até a pasta server e rode o servidor com:
+Navegue até a pasta `server/` e rode o servidor com:
 
 ```bash
 python3 main.py
