@@ -21,11 +21,15 @@ Nenhuma dependência externa. Todo o comportamento de rede, protocolo e persist�
 
 ## Como rodar
 
+Copie todo o repositório (a pasta `data`, por exemplo, é essencial por contar com o `.json` que guarda o banco de dados do servidor).
+
+Navegue até a pasta server e rode o servidor com:
+
 ```bash
-python3 server.py
+python3 main.py
 ```
 
-O servidor escuta em `127.0.0.1:9090`. Conecte com qualquer cliente TCP:
+O servidor escuta em `127.0.0.1:9090`. Conecte com qualquer cliente TCP (por exemplo, o netcat):
 
 ```bash
 nc 127.0.0.1 9090
@@ -47,7 +51,7 @@ Múltiplos clientes podem conectar ao mesmo tempo; cada conexão é atendida num
 | `\help` | Mostra os comandos disponíveis |
 | `\exit` | Encerra a conexão |
 
-Valores com espaço são suportados (`\set nome João Silva` grava `"João Silva"` inteiro); o parser em `commands.py` trata tudo após a chave como parte do valor.
+Valores com espaço são suportados (`\set nome Danny Secundino` grava `"Danny Secundino"` inteiro); o parser em `commands.py` trata tudo após a chave como parte do valor.
 
 ---
 
@@ -55,10 +59,10 @@ Valores com espaço são suportados (`\set nome João Silva` grava `"João Silva
 
 | Módulo | Responsabilidade |
 |---|---|
-| `server.py` | Ponto de entrada: carrega o estado do disco, sobe o socket de escuta, aceita conexões em loop e delega cada uma a uma thread. Trata `KeyboardInterrupt` para persistir o estado antes de encerrar. |
+| `main.py` | Ponto de entrada: carrega o estado do disco (`db.pegar_json()`), sobe o socket de escuta, aceita conexões em loop e delega cada uma a uma thread. Trata `KeyboardInterrupt` para persistir o estado antes de encerrar. |
 | `network.py` | Socket de escuta, leitura/escrita de dados brutos, e o handler `atender_client` que roda dentro da thread de cada cliente. |
 | `commands.py` | Parsing e execução dos comandos do protocolo. |
-| `db_operations.py` | Acesso ao dicionário compartilhado, protegido por um `threading.Lock` global. |
+| `db_operations.py` | Acesso ao dicionário compartilhado (protegido por um `threading.Lock` global) e toda a persistência em disco (`pegar_json`/`atualizar_json`). |
 
 ### Concorrência: thread por conexão
 
@@ -70,7 +74,7 @@ Como múltiplas threads podem ler e escrever o mesmo dicionário ao mesmo tempo,
 
 ### Persistência: snapshot em JSON no encerramento
 
-O estado é carregado de `database/db.json` na subida do servidor e salvo de volta somente quando o servidor recebe `Ctrl+C` (`KeyboardInterrupt`), dentro do mesmo lock usado pelas operações normais, pra garantir que nenhuma escrita concorrente aconteça durante o dump. Essa é uma estratégia de snapshot simples, não durável: se o processo cair de forma anormal (kill -9, queda de energia, crash), as alterações desde a última subida se perdem, diferente de bancos reais que usam write-ahead log (o AOF do Redis, por exemplo) pra persistir cada operação no momento em que ela acontece.
+O estado é carregado de `data/db.json` na subida do servidor (`db.pegar_json()`) e salvo de volta somente quando o servidor recebe `Ctrl+C` (`KeyboardInterrupt`), via `db.atualizar_json(bd)`, que reusa o mesmo lock das operações normais pra garantir que nenhuma escrita concorrente aconteça durante o dump. Essa é uma estratégia de snapshot simples, não durável: se o processo cair de forma anormal (kill -9, queda de energia, crash), as alterações desde a última subida se perdem, diferente de bancos reais que usam write-ahead log (o AOF do Redis, por exemplo) pra persistir cada operação no momento em que ela acontece.
 
 ---
 
@@ -94,3 +98,9 @@ O estado é carregado de `database/db.json` na subida do servidor e salvo de vol
 - [ ] Expiração automática de chaves (TTL)
 - [ ] Testes automatizados
 - [ ] Novos comandos
+
+---
+
+## Licença
+
+MIT.
