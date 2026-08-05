@@ -1,134 +1,102 @@
 # Tiny Vault
 
-Banco de dados educacional chave-valor, desenvolvido em Python puro.
+Banco de dados educacional chave-valor, feito em Python puro.
 
-O Tiny Vault é um servidor de armazenamento chave-valor em memória construído utilizando apenas a biblioteca padrão do Python. O objetivo do projeto é servir como ferramenta de estudo para compreender, na prática, conceitos de programação em Python, redes de computadores e arquitetura cliente-servidor.
+Servidor de armazenamento chave-valor multi-cliente, construído inteiramente sobre a biblioteca padrão do Python (`socket`, `threading`, `json`), sem frameworks ou dependências externas. O protocolo de comandos é próprio, inspirado no [Redis](https://redis.io), mas implementado do zero como exercício de redes de computadores, concorrência e arquitetura de sistemas.
 
-A comunicação entre cliente e servidor é implementada diretamente sobre sockets TCP, sem frameworks ou dependências externas, utilizando um protocolo de comandos simples inspirado no Redis.
-
-O software conta com o uso de **threads** para atender a **múltiplos clientes simultâneos**.
-
-> Redis é uma marca registrada da Redis Ltd. Este projeto não possui qualquer afiliação, patrocínio ou endosso da Redis Ltd.; a referência é utilizada apenas para fins educacionais.
+> Redis é uma marca registrada da Redis Ltd. Este projeto não possui afiliação, patrocínio ou endosso da Redis Ltd.; a referência é apenas conceitual.
 
 ---
 
-## Objetivos
+## Stack
 
-Este projeto foi desenvolvido com foco em aprendizado, buscando aplicar conhecimentos em:
+- **Python 3**, apenas biblioteca padrão
+- `socket` — camada de transporte TCP
+- `threading` — concorrência (thread por conexão) e exclusão mútua (`Lock`)
+- `json` — serialização do estado do banco para disco
 
-- programação em Python;
-- programação orientada a módulos;
-- comunicação em redes utilizando sockets TCP;
-- arquitetura cliente-servidor;
-- desenvolvimento de protocolos de aplicação;
-- manipulação de estruturas de dados em memória.
-
-Além de consolidar conceitos de Redes de Computadores, o projeto também contribui para o desenvolvimento de familiaridade com a biblioteca padrão do Python, demonstrando que é possível implementar aplicações de rede completas sem recorrer a bibliotecas externas.
+Nenhuma dependência externa. Todo o comportamento de rede, protocolo e persistência foi escrito manualmente, sem bibliotecas como `asyncio`, `socketserver` ou ORMs.
 
 ---
 
 ## Como rodar
 
-Inicie o servidor:
-
 ```bash
 python3 server.py
 ```
 
-O servidor escutará em:
-
-```
-127.0.0.1:9090
-```
-
-Para conectar, utilize qualquer cliente TCP, por exemplo o Netcat:
+O servidor escuta em `127.0.0.1:9090`. Conecte com qualquer cliente TCP:
 
 ```bash
 nc 127.0.0.1 9090
 ```
 
+Múltiplos clientes podem conectar ao mesmo tempo; cada conexão é atendida numa thread própria.
+
 ---
 
-## Comandos disponíveis
+## Comandos
 
 | Comando | Descrição |
-|---------|-----------|
+|---|---|
 | `\set <chave> <valor>` | Armazena um valor associado a uma chave |
-| `\get <chave>` | Recupera o valor armazenado |
-| `\del <chave>` | Remove uma chave do banco |
-| `\list` | Lista todas as chaves existentes |
+| `\get <chave>` | Recupera o valor de uma chave |
+| `\del <chave>` | Remove uma chave |
+| `\list` | Lista todas as chaves armazenadas |
 | `\clear` | Limpa a tela do terminal |
-| `\help` | Exibe os comandos disponíveis |
-| `\exit` | Encerra a conexão com o servidor |
+| `\help` | Mostra os comandos disponíveis |
+| `\exit` | Encerra a conexão |
+
+Valores com espaço são suportados (`\set nome João Silva` grava `"João Silva"` inteiro); o parser em `commands.py` trata tudo após a chave como parte do valor.
 
 ---
 
 ## Arquitetura
 
-O projeto está organizado em módulos independentes, cada um responsável por uma parte da aplicação.
+| Módulo | Responsabilidade |
+|---|---|
+| `server.py` | Ponto de entrada: carrega o estado do disco, sobe o socket de escuta, aceita conexões em loop e delega cada uma a uma thread. Trata `KeyboardInterrupt` para persistir o estado antes de encerrar. |
+| `network.py` | Socket de escuta, leitura/escrita de dados brutos, e o handler `atender_client` que roda dentro da thread de cada cliente. |
+| `commands.py` | Parsing e execução dos comandos do protocolo. |
+| `db_operations.py` | Acesso ao dicionário compartilhado, protegido por um `threading.Lock` global. |
 
-### `server.py`
+### Concorrência: thread por conexão
 
-Responsável pelo ciclo de vida do servidor:
+Cada cliente que conecta ganha sua própria thread (`threading.Thread(target=net.atender_client, ...)`), em vez de um loop de eventos (`select`/`epoll`) monitorando todos os sockets num único thread. É o modelo mais simples de implementar corretamente e o ponto de partida natural pra entender concorrência em servidores de rede, embora não escale tão bem quanto um event loop pra um número muito grande de conexões simultâneas (cada thread tem custo de memória e o SO precisa fazer context switch entre elas).
 
-- criação do socket de escuta;
-- aceitação de conexões TCP;
-- recebimento dos comandos enviados pelo cliente;
-- envio das respostas.
+### Exclusão mútua: lock global no dicionário
 
-### `network.py`
+Como múltiplas threads podem ler e escrever o mesmo dicionário ao mesmo tempo, todo acesso passa por um único `threading.Lock()` (`db_operations.LOCK`), garantindo que operações de `set`/`get`/`del` nunca aconteçam simultaneamente e corrompam o estado. É uma solução de granularidade grossa: correta e simples, mas serializa todo acesso ao banco, mesmo entre chaves diferentes que não têm relação nenhuma entre si. Um lock por chave (ou uma estrutura lock-free) daria mais paralelismo, mas exigiria bem mais cuidado pra não introduzir condições de corrida sutis.
 
-Implementa toda a camada de comunicação da aplicação:
+### Persistência: snapshot em JSON no encerramento
 
-- criação do socket TCP;
-- envio e recebimento de mensagens;
-- abstração da comunicação entre cliente e servidor.
-
-### `commands.py`
-
-Implementa o protocolo de comandos.
-
-É responsável por:
-
-- interpretar a entrada recebida;
-- validar argumentos;
-- executar cada operação;
-- produzir a resposta enviada ao cliente.
-
-### `db_operations.py`
-
-Camada de acesso ao armazenamento.
-
-Atualmente utiliza um `dict` do Python (implementado em `server.py`) como banco de dados em memória, encapsulando operações de inserção, consulta e remoção.
+O estado é carregado de `database/db.json` na subida do servidor e salvo de volta somente quando o servidor recebe `Ctrl+C` (`KeyboardInterrupt`), dentro do mesmo lock usado pelas operações normais, pra garantir que nenhuma escrita concorrente aconteça durante o dump. Essa é uma estratégia de snapshot simples, não durável: se o processo cair de forma anormal (kill -9, queda de energia, crash), as alterações desde a última subida se perdem, diferente de bancos reais que usam write-ahead log (o AOF do Redis, por exemplo) pra persistir cada operação no momento em que ela acontece.
 
 ---
 
-## Conceitos aplicados
+## Competências demonstradas
 
-Durante o desenvolvimento foram utilizados diversos conceitos estudados em disciplinas de programação e redes, como:
-
-- sockets TCP (`socket.AF_INET` e `SOCK_STREAM`);
-- comunicação cliente-servidor;
-- protocolo de aplicação baseado em texto;
-- parsing de comandos;
-- abstração por módulos;
-- manipulação de estruturas de dados (`dict`);
-- tratamento de conexões;
-- organização de software.
-
-Embora simples, o projeto reproduz parte da lógica encontrada em servidores reais, permitindo compreender o fluxo de comunicação entre aplicações distribuídas.
+- Programação de sockets TCP (`socket.AF_INET`, `SOCK_STREAM`, `bind`/`listen`/`accept`)
+- Concorrência: modelo thread-per-connection e sincronização com `Lock`
+- Design de protocolo de aplicação orientado a texto, incluindo parsing de argumentos com espaço
+- Serialização e persistência de estado com `json`
+- Tratamento de sinais/exceções para encerramento gracioso (`KeyboardInterrupt`)
+- Organização de software em módulos com responsabilidades bem separadas
 
 ---
 
-## Próximos passos
+## Roteiro
 
-- [x] Servidor single-client
-- [x] Comandos `SET`, `GET`, `DEL`
-- [x] Listagem de chaves
-- [x] Sistema de ajuda
-- [X] Suporte a múltiplos clientes simultaneamente
-- [ ] Persistência em disco
+- [x] Servidor single-client com `\set`/`\get`/`\del`
+- [x] Listagem de chaves e sistema de ajuda
+- [x] Suporte a múltiplos clientes simultâneos (thread por conexão)
+- [x] Persistência em disco (snapshot em JSON ao encerrar)
 - [ ] Expiração automática de chaves (TTL)
 - [ ] Testes automatizados
-- [ ] Implementação de novos comandos
+- [ ] Novos comandos
 
+---
+
+## Licença
+
+MIT.
