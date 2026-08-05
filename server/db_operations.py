@@ -1,5 +1,9 @@
-from locktreatment.lock import LOCK          # tem que ser o mesmo LOCK para toda thread
+import threading    # cuidar de concorrência de threads
+import json         # persistência em disco
 
+LOCK = threading.Lock()
+
+# 1. acesso a dicionario
 
 def set_bd(bd, chave, valor):
     with LOCK:
@@ -19,3 +23,15 @@ def del_bd(bd, chave):
             return True
         else:
             return False
+
+# 2. persistência em disco
+
+def pegar_json():
+    with open("data/db.json", "r") as file:
+        bd = json.load(file)
+    return bd
+
+def atualizar_json(bd):
+    with LOCK:
+        with open("data/db.json", "w") as file:
+            json.dump(bd, file, indent=4, sort_keys=True)    # indent: para identar e ficar elegante // sort_keys: para ordenar alfabeticamente
