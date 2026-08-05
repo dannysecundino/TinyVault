@@ -98,9 +98,3 @@ O estado é carregado de `data/db.json` na subida do servidor (`db.pegar_json()`
 - [ ] Expiração automática de chaves (TTL)
 - [ ] Testes automatizados
 - [ ] Novos comandos
-
----
-
-## Licença
-
-MIT.
