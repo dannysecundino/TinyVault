@@ -1,6 +1,5 @@
-import threading
+from locktreatment.lock import LOCK          # tem que ser o mesmo LOCK para toda thread
 
-LOCK = threading.Lock()
 
 def set_bd(bd, chave, valor):
     with LOCK:

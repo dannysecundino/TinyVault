@@ -1,12 +1,10 @@
+from locktreatment.lock import LOCK          # tem que ser o mesmo LOCK para toda thread
 import network as net
-import db_operations as db      # para usar o mesmo  LOCK
 import threading
 import json
 
 HOST = "127.0.0.1"
 PORT = 9090
-
-LOCK = db.LOCK              # precisa ser o mesmo das outras threads
 
 # banco de dados
 with open("database/db.json", "r") as file:
