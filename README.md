@@ -94,9 +94,3 @@ O estado é carregado de `database/db.json` na subida do servidor e salvo de vol
 - [ ] Expiração automática de chaves (TTL)
 - [ ] Testes automatizados
 - [ ] Novos comandos
-
----
-
-## Licença
-
-MIT.
