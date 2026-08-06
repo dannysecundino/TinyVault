@@ -20,4 +20,4 @@ while True:
     # abrir uma thread
     th = threading.Thread(target = net.atender_client, args=(csock, bd))
     th.start()
-
+lsock.close()
