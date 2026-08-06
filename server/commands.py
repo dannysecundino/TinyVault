@@ -65,7 +65,6 @@ def execute(bd, com):
 
     elif operacao == "\\list":
         saida = ">> Keys in the database:\n"
-        i = 1
         for chave in bd.keys():
             saida += f"   {chave}\n"
 
