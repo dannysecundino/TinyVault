@@ -72,9 +72,9 @@ Cada cliente que conecta ganha sua própria thread (`threading.Thread(target=net
 
 Como múltiplas threads podem ler e escrever o mesmo dicionário ao mesmo tempo, todo acesso passa por um único `threading.Lock()` (`db_operations.LOCK`), garantindo que operações de `set`/`get`/`del` nunca aconteçam simultaneamente e corrompam o estado. É uma solução de granularidade grossa: correta e simples, mas serializa todo acesso ao banco, mesmo entre chaves diferentes que não têm relação nenhuma entre si. Um lock por chave (ou uma estrutura lock-free) daria mais paralelismo, mas exigiria bem mais cuidado pra não introduzir condições de corrida sutis.
 
-### Persistência: snapshot em JSON no encerramento
+### Persistência: snapshot em JSON a cada alteração
 
-O estado é carregado de `data/db.json` na subida do servidor (`db.pegar_json()`) e salvo de volta somente quando o servidor recebe `Ctrl+C` (`KeyboardInterrupt`), via `db.atualizar_json(bd)`, que reusa o mesmo lock das operações normais pra garantir que nenhuma escrita concorrente aconteça durante o dump. Essa é uma estratégia de snapshot simples, não durável: se o processo cair de forma anormal (kill -9, queda de energia, crash), as alterações desde a última subida se perdem, diferente de bancos reais que usam write-ahead log (o AOF do Redis, por exemplo) pra persistir cada operação no momento em que ela acontece.
+O estado é carregado de `data/db.json` na subida do servidor (`db.pegar_json()`) e salvo de volta sempre que o banco sofre alguma alteração (`\set` ou `\del`), via `db.atualizar_json(bd)`, que está inevitavelmente sujeito, em suas chamadas, o mesmo lock das operações normais pra garantir que nenhuma escrita concorrente aconteça durante o dump. Essa é uma estratégia que veio para substituir uma ideia de snapshot simples, não durável, em que a atualização do `.json` era feita somente se o servidor caísse por um `KeyboardInterrupt`. Essa não era uma boa estratégia, já que, se o processo caísse de forma anormal (kill -9, queda de energia, crash), as alterações desde a última subida se perderiam.
 
 ---
 
@@ -84,7 +84,6 @@ O estado é carregado de `data/db.json` na subida do servidor (`db.pegar_json()`
 - Concorrência: modelo thread-per-connection e sincronização com `Lock`
 - Design de protocolo de aplicação orientado a texto, incluindo parsing de argumentos com espaço
 - Serialização e persistência de estado com `json`
-- Tratamento de sinais/exceções para encerramento gracioso (`KeyboardInterrupt`)
 - Organização de software em módulos com responsabilidades bem separadas
 
 ---
@@ -94,7 +93,7 @@ O estado é carregado de `data/db.json` na subida do servidor (`db.pegar_json()`
 - [x] Servidor single-client com `\set`/`\get`/`\del`
 - [x] Listagem de chaves e sistema de ajuda
 - [x] Suporte a múltiplos clientes simultâneos (thread por conexão)
-- [x] Persistência em disco (snapshot em JSON ao encerrar)
+- [x] Persistência em disco (snapshot em JSON ao alterar)
 - [ ] Expiração automática de chaves (TTL)
 - [ ] Testes automatizados
 - [ ] Novos comandos
