@@ -74,11 +74,27 @@ def execute(bd, com):
     elif operacao == "\\clear":
         saida = "\033[H\033[J"  # ANSI escape code to clear the screen
 
+    elif operacao == "\\rename":
+        if len(com) < 3:
+            saida = ">> Invalid command\n"
+        else:
+            chave_antiga = com[1]
+            chave_nova = com[2]
+
+            valor = db.get_bd(bd, chave_antiga)
+            if valor == None:
+                saida = f">> The key \"{chave_antiga}\" is not registered\n"
+            else:
+                sucesso = db.del_bd(bd, chave_antiga)       # é desnecessário guardar o sucesso, mas guardei só para fazer jus ao retorno da função
+                db.set_bd(bd, chave_nova, valor)
+                saida = ">> Key updated successfully\n"
+
     elif operacao == "\\help":
         saida = ">> Available commands:\n"
         saida += "   \\set <key> <value> - Set a value for a key\n"
         saida += "   \\get <key> - Get the value of a key\n"
         saida += "   \\del <key> - Delete a key\n"
+        saida += "   \\rename <old_key> <new_key> - Rename a key\n"
         saida += "   \\list - List all keys in the database\n"
         saida += "   \\exit - Exit the server\n"
         saida += "   \\clear - Clear the screen\n"
