@@ -52,7 +52,7 @@ Múltiplos clientes podem conectar ao mesmo tempo; cada conexão é atendida num
 | `\help` | Mostra os comandos disponíveis |
 | `\exit` | Encerra a conexão |
 
-Valores com espaço são suportados (`\set nome Danny Secundino` grava `"Danny Secundino"` inteiro); o parser em `commands.py` trata tudo após a chave como valor.
+Valores com espaço são suportados (`\set nome Danny Secundino` grava `"Danny Secundino"` inteiro); o parser que se encontra em `commands.py` trata tudo após a chave como valor.
 
 ---
 
