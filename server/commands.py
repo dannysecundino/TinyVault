@@ -36,83 +36,84 @@ def execute(bd, com):
     saida = ""
     operacao = com[0]
 
-    if operacao == "\\set":
-        if len(com) < 3:
-            saida = ">> Invalid command\n"
-        else:
-            chave = com[1]
-            valor = com[2]
-            db.set_bd(bd, chave, valor)
-            saida = ">> Value set\n"
-
-    elif operacao == "\\get":
-        if len(com) < 2:
-            saida = ">> Invalid command\n"
-        else:
-            chave = com[1]
-            valor = db.get_bd(bd, chave)
-            if valor is not None:
-                saida = f">> {valor}\n"
+    match operacao:
+        case "\\set":
+            if len(com) < 3:
+                saida = ">> Invalid command\n"
             else:
-                saida = ">> Key not found\n"
+                chave = com[1]
+                valor = com[2]
+                db.set_bd(bd, chave, valor)
+                saida = ">> Value set\n"
 
-    elif operacao == "\\del":
-        if len(com) < 2:
-            saida = ">> Invalid command\n"
-        else:
+        case "\\get":
+            if len(com) < 2:
+                saida = ">> Invalid command\n"
+            else:
+                chave = com[1]
+                valor = db.get_bd(bd, chave)
+                if valor is not None:
+                    saida = f">> {valor}\n"
+                else:
+                    saida = ">> Key not found\n"
+
+        case "\\del":
+            if len(com) < 2:
+                saida = ">> Invalid command\n"
+            else:
+                chave = com[1]
+                sucesso = db.del_bd(bd, chave)
+                if sucesso:
+                    saida = ">> Key deleted\n"
+                else:
+                    saida = ">> Key not found\n"
+
+        case "\\list":
+            saida = ">> Keys in the database:\n"
+            for chave in bd.keys():
+                saida += f"   {chave}\n"
+
+        case "\\exit":
+            saida = ">> See you later!\n"
+
+        case "\\clear":
+            saida = "\033[H\033[J"  # ANSI escape code to clear the screen
+
+        case "\\rename":
+            if len(com) < 3:
+                saida = ">> Invalid command\n"
+            else:
+                chave_antiga = com[1]
+                chave_nova = com[2]
+
+                valor = db.get_bd(bd, chave_antiga)
+                if valor == None:
+                    saida = f">> The key \"{chave_antiga}\" is not registered\n"
+                else:
+                    sucesso = db.del_bd(bd, chave_antiga)       # é desnecessário guardar o sucesso, mas guardei só para fazer jus ao retorno da função
+                    db.set_bd(bd, chave_nova, valor)
+                    saida = ">> Key updated successfully\n"
+
+        case "\\exists":
             chave = com[1]
-            sucesso = db.del_bd(bd, chave)
-            if sucesso:
-                saida = ">> Key deleted\n"
+            if chave in bd:
+                saida = ">> YES (this key exists)\n"
             else:
-                saida = ">> Key not found\n"
+                saida = ">> NO (this key doesn't exists)\n"
+            
+        case "\\help":
+            saida = ">> Available commands:\n"
+            saida += "   \\set <key> <value> - Set a value for a key\n"
+            saida += "   \\get <key> - Get the value of a key\n"
+            saida += "   \\del <key> - Delete a key\n"
+            saida += "   \\rename <old_key> <new_key> - Rename a key\n"
+            saida += "   \\exists <key> - Checks if the key exists\n"
+            saida += "   \\list - List all keys in the database\n"
+            saida += "   \\exit - Exit the server\n"
+            saida += "   \\clear - Clear the screen\n"
+            saida += "   \\help - Show this help message\n"
 
-    elif operacao == "\\list":
-        saida = ">> Keys in the database:\n"
-        for chave in bd.keys():
-            saida += f"   {chave}\n"
-
-    elif operacao == "\\exit":
-        saida = ">> See you later!\n"
-
-    elif operacao == "\\clear":
-        saida = "\033[H\033[J"  # ANSI escape code to clear the screen
-
-    elif operacao == "\\rename":
-        if len(com) < 3:
+        case _:
             saida = ">> Invalid command\n"
-        else:
-            chave_antiga = com[1]
-            chave_nova = com[2]
-
-            valor = db.get_bd(bd, chave_antiga)
-            if valor == None:
-                saida = f">> The key \"{chave_antiga}\" is not registered\n"
-            else:
-                sucesso = db.del_bd(bd, chave_antiga)       # é desnecessário guardar o sucesso, mas guardei só para fazer jus ao retorno da função
-                db.set_bd(bd, chave_nova, valor)
-                saida = ">> Key updated successfully\n"
-
-    elif operacao == "\\exists":
-        chave = com[1]
-        if chave in bd:
-            saida = ">> YES (this key exists)\n"
-        else:
-            saida = ">> NO (this key doesn't exists)\n"
-        
-    elif operacao == "\\help":
-        saida = ">> Available commands:\n"
-        saida += "   \\set <key> <value> - Set a value for a key\n"
-        saida += "   \\get <key> - Get the value of a key\n"
-        saida += "   \\del <key> - Delete a key\n"
-        saida += "   \\rename <old_key> <new_key> - Rename a key\n"
-        saida += "   \\exists <key> - Checks if the key exists\n"
-        saida += "   \\list - List all keys in the database\n"
-        saida += "   \\exit - Exit the server\n"
-        saida += "   \\clear - Clear the screen\n"
-        saida += "   \\help - Show this help message\n"
-
-    else:
-        saida = ">> Invalid command\n"
 
     return saida
