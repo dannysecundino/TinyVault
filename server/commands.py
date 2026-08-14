@@ -1,5 +1,6 @@
 import db_operations as db
 
+# funções auxiliares
 def eh_argumento_unico_ou_vazio(com):
     if len(com) <= 2:
         return True
@@ -25,7 +26,10 @@ def tratar_comando(com):
     com.clear()
     for i in range(len(atualizado_com)):
         com.append(atualizado_com[i])
-    
+
+# funções dos comandos
+
+# função execute
 def execute(bd, com):
     tratar_comando(com)
 
@@ -89,12 +93,20 @@ def execute(bd, com):
                 db.set_bd(bd, chave_nova, valor)
                 saida = ">> Key updated successfully\n"
 
+    elif operacao == "\\exists":
+        chave = com[1]
+        if chave in bd:
+            saida = ">> YES (this key exists)\n"
+        else:
+            saida = ">> NO (this key doesn't exists)\n"
+        
     elif operacao == "\\help":
         saida = ">> Available commands:\n"
         saida += "   \\set <key> <value> - Set a value for a key\n"
         saida += "   \\get <key> - Get the value of a key\n"
         saida += "   \\del <key> - Delete a key\n"
         saida += "   \\rename <old_key> <new_key> - Rename a key\n"
+        saida += "   \\exists <key> - Checks if the key exists\n"
         saida += "   \\list - List all keys in the database\n"
         saida += "   \\exit - Exit the server\n"
         saida += "   \\clear - Clear the screen\n"

@@ -47,6 +47,7 @@ Múltiplos clientes podem conectar ao mesmo tempo; cada conexão é atendida num
 | `\get <chave>` | Recupera o valor de uma chave |
 | `\del <chave>` | Remove uma chave |
 | `\rename <chave_antiga> <chave_nova>` | Renomeia uma chave |
+| `\exists <chave>` | Checa a existência de uma chave |
 | `\list` | Lista todas as chaves armazenadas |
 | `\clear` | Limpa a tela do terminal |
 | `\help` | Mostra os comandos disponíveis |
