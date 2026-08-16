@@ -55,6 +55,83 @@ def _get(bd, com):
 
     return saida
 
+def _del (bd, com):
+    saida = ""
+
+    if len(com) < 2:
+        saida = ">> Invalid command\n"
+    else:
+        chave = com[1]
+        sucesso = db.del_bd(bd, chave)
+        if sucesso:
+            saida = ">> Key deleted\n"
+        else:
+            saida = ">> Key not found\n"
+
+    return saida
+
+def _list(bd):
+    saida = ">> Keys in the database:\n"
+    for chave in bd.keys():
+        saida += f"   {chave}\n"
+    return saida
+
+def _exit ():
+    saida = ">> See you later!\n"
+    return saida
+
+def _clear():
+    saida = "\033[H\033[J"  # ANSI escape code to clear the screen
+    return saida
+
+def _rename(bd, com):
+    saida = ""
+
+    if len(com) < 3:
+        saida = ">> Invalid command\n"
+    else:
+        chave_antiga = com[1]
+        chave_nova = com[2]
+
+        valor = db.get_bd(bd, chave_antiga)
+        if valor == None:
+            saida = f">> The key \"{chave_antiga}\" is not registered\n"
+        else:
+            sucesso = db.del_bd(bd, chave_antiga)       # é desnecessário guardar o sucesso, mas guardei só para fazer jus ao retorno da função
+            db.set_bd(bd, chave_nova, valor)
+            saida = ">> Key updated successfully\n"
+
+    return saida
+
+def _exists(bd, com):
+    saida = ""
+
+    chave = com[1]
+    if chave in bd:
+        saida = ">> YES (this key exists)\n"
+    else:
+        saida = ">> NO (this key doesn't exists)\n"
+
+    return saida
+
+def _help():
+    saida = ">> Available commands:\n"
+    saida += "   \\set <key> <value> - Set a value for a key\n"
+    saida += "   \\get <key> - Get the value of a key\n"
+    saida += "   \\del <key> - Delete a key\n"
+    saida += "   \\rename <old_key> <new_key> - Rename a key\n"
+    saida += "   \\exists <key> - Checks if the key exists\n"
+    saida += "   \\list - List all keys in the database\n"
+    saida += "   \\exit - Exit the server\n"
+    saida += "   \\clear - Clear the screen\n"
+    saida += "   \\help - Show this help message\n"
+
+    return saida
+
+def _cmdnotfound():
+    saida = ">> Invalid command\n"
+    return saida
+
 # função execute
 def execute(bd, com):
     tratar_comando(com)
@@ -70,62 +147,27 @@ def execute(bd, com):
             saida = _get(bd, com)
 
         case "\\del":
-            if len(com) < 2:
-                saida = ">> Invalid command\n"
-            else:
-                chave = com[1]
-                sucesso = db.del_bd(bd, chave)
-                if sucesso:
-                    saida = ">> Key deleted\n"
-                else:
-                    saida = ">> Key not found\n"
+            saida = _del(bd, com)
 
         case "\\list":
-            saida = ">> Keys in the database:\n"
-            for chave in bd.keys():
-                saida += f"   {chave}\n"
+            saida = _list(bd)
 
         case "\\exit":
-            saida = ">> See you later!\n"
+            saida = _exit()
 
         case "\\clear":
-            saida = "\033[H\033[J"  # ANSI escape code to clear the screen
+            saida = _clear()
 
         case "\\rename":
-            if len(com) < 3:
-                saida = ">> Invalid command\n"
-            else:
-                chave_antiga = com[1]
-                chave_nova = com[2]
-
-                valor = db.get_bd(bd, chave_antiga)
-                if valor == None:
-                    saida = f">> The key \"{chave_antiga}\" is not registered\n"
-                else:
-                    sucesso = db.del_bd(bd, chave_antiga)       # é desnecessário guardar o sucesso, mas guardei só para fazer jus ao retorno da função
-                    db.set_bd(bd, chave_nova, valor)
-                    saida = ">> Key updated successfully\n"
+            saida = _rename(bd, com)
 
         case "\\exists":
-            chave = com[1]
-            if chave in bd:
-                saida = ">> YES (this key exists)\n"
-            else:
-                saida = ">> NO (this key doesn't exists)\n"
+            saida = _exists(bd, com)
             
         case "\\help":
-            saida = ">> Available commands:\n"
-            saida += "   \\set <key> <value> - Set a value for a key\n"
-            saida += "   \\get <key> - Get the value of a key\n"
-            saida += "   \\del <key> - Delete a key\n"
-            saida += "   \\rename <old_key> <new_key> - Rename a key\n"
-            saida += "   \\exists <key> - Checks if the key exists\n"
-            saida += "   \\list - List all keys in the database\n"
-            saida += "   \\exit - Exit the server\n"
-            saida += "   \\clear - Clear the screen\n"
-            saida += "   \\help - Show this help message\n"
+            saida = _help()
 
         case _:
-            saida = ">> Invalid command\n"
+            saida = _cmdnotfound()
 
     return saida
