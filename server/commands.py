@@ -28,6 +28,32 @@ def tratar_comando(com):
         com.append(atualizado_com[i])
 
 # funções dos comandos
+def _set(bd, com):
+    saida = ""
+    if len(com) < 3:
+        saida = ">> Invalid command\n"
+    else:
+        chave = com[1]
+        valor = com[2]
+        db.set_bd(bd, chave, valor)
+        saida = ">> Value set\n"
+
+    return saida
+
+def _get(bd, com):
+    saida = ""
+    
+    if len(com) < 2:
+        saida = ">> Invalid command\n"
+    else:
+        chave = com[1]
+        valor = db.get_bd(bd, chave)
+        if valor is not None:
+            saida = f">> {valor}\n"
+        else:
+            saida = ">> Key not found\n"
+
+    return saida
 
 # função execute
 def execute(bd, com):
@@ -38,24 +64,10 @@ def execute(bd, com):
 
     match operacao:
         case "\\set":
-            if len(com) < 3:
-                saida = ">> Invalid command\n"
-            else:
-                chave = com[1]
-                valor = com[2]
-                db.set_bd(bd, chave, valor)
-                saida = ">> Value set\n"
+            saida = _set (bd, com)
 
         case "\\get":
-            if len(com) < 2:
-                saida = ">> Invalid command\n"
-            else:
-                chave = com[1]
-                valor = db.get_bd(bd, chave)
-                if valor is not None:
-                    saida = f">> {valor}\n"
-                else:
-                    saida = ">> Key not found\n"
+            saida = _get(bd, com)
 
         case "\\del":
             if len(com) < 2:
