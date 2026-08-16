@@ -1,5 +1,15 @@
 import db_operations as db
 
+cabecalho = "\033[94m" + r""" _________  ___  ________       ___    ___      ___      ___ ________  ___  ___  ___   _________   
+|\___   ___\\  \|\   ___  \    |\  \  /  /|    |\  \    /  /|\   __  \|\  \|\  \|\  \ |\___   ___\ 
+\|___ \  \_\ \  \ \  \\ \  \   \ \  \/  / /    \ \  \  /  / | \  \|\  \ \  \\\  \ \  \\|___ \  \_| 
+     \ \  \ \ \  \ \  \\ \  \   \ \    / /      \ \  \/  / / \ \   __  \ \  \\\  \ \  \    \ \  \  
+      \ \  \ \ \  \ \  \\ \  \   \/  /  /        \ \    / /   \ \  \ \  \ \  \\\  \ \  \____\ \  \ 
+       \ \__\ \ \__\ \__\\ \__\__/  / /           \ \__/ /     \ \__\ \__\ \_______\ \_______\ \__\
+        \|__|  \|__|\|__| \|__|\___/ /             \|__|/       \|__|\|__|\|_______|\|_______|\|__|
+                              \|___|/                                                              
+""" + "\033[90m" + "Welcome to the Tiny Vault server! (type \\help for available commands)\n" + "\033[0m"
+
 # funções auxiliares
 def eh_argumento_unico_ou_vazio(com):
     if len(com) <= 2:
@@ -81,7 +91,7 @@ def _exit ():
     return saida
 
 def _clear():
-    saida = "\033[H\033[J"  # ANSI escape code to clear the screen
+    saida = "\033[H\033[J" + cabecalho  # \033[H\033[J -> ANSI escape code to clear the screen
     return saida
 
 def _rename(bd, com):
@@ -169,5 +179,7 @@ def execute(bd, com):
 
         case _:
             saida = _cmdnotfound()
+
+    saida = "\033[3;36m" + saida + "\033[0m"      # para ficar colorido
 
     return saida

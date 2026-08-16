@@ -1,6 +1,16 @@
 import socket
 import commands as cmd
 
+cabecalho = "\033[94m" + r""" _________  ___  ________       ___    ___      ___      ___ ________  ___  ___  ___   _________   
+|\___   ___\\  \|\   ___  \    |\  \  /  /|    |\  \    /  /|\   __  \|\  \|\  \|\  \ |\___   ___\ 
+\|___ \  \_\ \  \ \  \\ \  \   \ \  \/  / /    \ \  \  /  / | \  \|\  \ \  \\\  \ \  \\|___ \  \_| 
+     \ \  \ \ \  \ \  \\ \  \   \ \    / /      \ \  \/  / / \ \   __  \ \  \\\  \ \  \    \ \  \  
+      \ \  \ \ \  \ \  \\ \  \   \/  /  /        \ \    / /   \ \  \ \  \ \  \\\  \ \  \____\ \  \ 
+       \ \__\ \ \__\ \__\\ \__\__/  / /           \ \__/ /     \ \__\ \__\ \_______\ \_______\ \__\
+        \|__|  \|__|\|__| \|__|\___/ /             \|__|/       \|__|\|__|\|_______|\|_______|\|__|
+                              \|___|/                                                              
+""" + "\033[90m" + "Welcome to the Tiny Vault server! (type \\help for available commands)\n" + "\033[0m"
+
 
 # comunicacao com o client
 def criar_socket_escuta(host, port):
@@ -25,7 +35,8 @@ def enviar_saida(sock, saida):
 def atender_client(csock, bd):
     # se comunicando com o client
     enviar_saida(csock, "\033[H\033[J".encode("utf-8"))  # ANSI escape code to clear the screen
-    enviar_saida(csock, ">> Welcome to the Tiny Vault server! (type \\help for available commands)\n".encode("utf-8"))
+    enviar_saida(csock, cabecalho.encode("utf-8"))
+
     sair = False
     while not sair:
         comando = receber_comando(csock)
@@ -38,3 +49,4 @@ def atender_client(csock, bd):
         if saida == ">> See you later!\n":
             sair = True
     csock.close()
+
