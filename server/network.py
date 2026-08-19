@@ -41,12 +41,12 @@ def atender_client(csock, bd):
     while not sair:
         comando = receber_comando(csock)
 
-        if not comando:  # lista vazia: cliente desconectou
+        if not comando:  # vazio: cliente desconectou
             break
 
         saida = cmd.execute(bd, comando)
         enviar_saida(csock, str(saida).encode("utf-8"))
-        if saida == ">> See you later!\n":
+        if saida == ">> See you later!\n":      # TODO: resolver bug do \exit
             sair = True
     csock.close()
 

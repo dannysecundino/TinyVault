@@ -144,6 +144,8 @@ def _cmdnotfound():
 
 # função execute
 def execute(bd, com):
+    print("Debug", repr(com))       # repr() retorna a representação oficial ("nua e crua") daquele objeto
+
     tratar_comando(com)
 
     saida = ""
