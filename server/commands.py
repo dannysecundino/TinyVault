@@ -89,14 +89,19 @@ def _swap(bd, com):
         key1 = com[1]
         key2 = com[2]
 
-        value1 = db.get_bd(bd, key1)
-        value2 = db.get_bd(bd, key2)
+        if not (key1 in bd):
+            saida = f">> {key1} is not a key on database\n"
+        elif not (key2 in bd):
+            saida = f">> {key2} is not a key on database\n"
+        else:
+            value1 = db.get_bd(bd, key1)
+            value2 = db.get_bd(bd, key2)
 
-        # trocar
-        db.set_bd(bd, key1, value2)
-        db.set_bd(bd, key2, value1)
+            # trocar
+            db.set_bd(bd, key1, value2)
+            db.set_bd(bd, key2, value1)
 
-        saida = ">> Values swapped successfully\n"
+            saida = ">> Values swapped successfully\n"
 
     return saida
 
