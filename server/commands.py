@@ -80,6 +80,26 @@ def _del (bd, com):
 
     return saida
 
+def _swap(bd, com):
+    saida = ""
+    
+    if len(com) < 2:
+        saida = ">> Invalid command\n"
+    else:
+        key1 = com[1]
+        key2 = com[2]
+
+        value1 = db.get_bd(bd, key1)
+        value2 = db.get_bd(bd, key2)
+
+        # trocar
+        db.set_bd(bd, key1, value2)
+        db.set_bd(bd, key2, value1)
+
+        saida = ">> Values swapped successfully\n"
+
+    return saida
+
 def _list(bd):
     saida = ">> Keys in the database:\n"
     for chave in bd.keys():
@@ -129,6 +149,7 @@ def _help():
     saida += "   \\set <key> <value> - Set a value for a key\n"
     saida += "   \\get <key> - Get the value of a key\n"
     saida += "   \\del <key> - Delete a key\n"
+    saida += "   \\swap <key_1> <key_2> - Swap the values of two different keys\n"
     saida += "   \\rename <old_key> <new_key> - Rename a key\n"
     saida += "   \\exists <key> - Checks if the key exists\n"
     saida += "   \\list - List all keys in the database\n"
@@ -160,6 +181,9 @@ def execute(bd, com):
 
         case "\\del":
             saida = _del(bd, com)
+
+        case "\\swap":
+            saida = _swap(bd, com)
 
         case "\\list":
             saida = _list(bd)
