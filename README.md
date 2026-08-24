@@ -46,6 +46,7 @@ Múltiplos clientes podem conectar ao mesmo tempo; cada conexão é atendida num
 | `\set <chave> <valor>` | Armazena um valor associado a uma chave |
 | `\get <chave>` | Recupera o valor de uma chave |
 | `\del <chave>` | Remove uma chave |
+| `\swap <chave_1> <chave_2>` | Troca os valores entre duas chaves |
 | `\rename <chave_antiga> <chave_nova>` | Renomeia uma chave |
 | `\exists <chave>` | Checa a existência de uma chave |
 | `\list` | Lista todas as chaves armazenadas |

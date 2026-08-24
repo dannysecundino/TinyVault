@@ -111,6 +111,26 @@ def _list(bd):
         saida += f"   {chave}\n"
     return saida
 
+def _copy(bd, com):
+    saida = ""
+
+    if len(com) < 3:
+        saida = ">> Invalid command\n"
+    else:
+        copiedKey = com[1]
+        newKey = com[2]
+        if newKey in bd:
+            saida = f">> [ERROR] The key {newKey} already exists.\n"
+        elif not (copiedKey in bd):
+            saida = f">> [ERROR] Key {copiedKey} not found.\n"
+        else:
+            value = db.get_bd(bd, copiedKey)
+            db.set_bd(bd, newKey, value)
+
+            saida = ">> Key copied\n"
+
+    return saida
+
 def _exit ():
     saida = ">> See you later!\n"
     return saida
@@ -192,6 +212,9 @@ def execute(bd, com):
 
         case "\\list":
             saida = _list(bd)
+
+        case "\\copy":
+            saida = _copy(bd, com)
 
         case "\\exit":
             saida = _exit()
