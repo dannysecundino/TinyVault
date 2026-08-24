@@ -50,6 +50,7 @@ Múltiplos clientes podem conectar ao mesmo tempo; cada conexão é atendida num
 | `\rename <chave_antiga> <chave_nova>` | Renomeia uma chave |
 | `\exists <chave>` | Checa a existência de uma chave |
 | `\list` | Lista todas as chaves armazenadas |
+| `\copy <chave_existente> <chave_nova>` | Copiar o valor de uma chave existente para uma nova chave |
 | `\clear` | Limpa a tela do terminal |
 | `\help` | Mostra os comandos disponíveis |
 | `\exit` | Encerra a conexão |

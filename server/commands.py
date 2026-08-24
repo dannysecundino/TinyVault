@@ -178,6 +178,7 @@ def _help():
     saida += "   \\rename <old_key> <new_key> - Rename a key\n"
     saida += "   \\exists <key> - Checks if the key exists\n"
     saida += "   \\list - List all keys in the database\n"
+    saida += "   \\copy <existing_key> <new_key> - Copy a value of an existing key to a new key\n"
     saida += "   \\exit - Exit the server\n"
     saida += "   \\clear - Clear the screen\n"
     saida += "   \\help - Show this help message\n"
